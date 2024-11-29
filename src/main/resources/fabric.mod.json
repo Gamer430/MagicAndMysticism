@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "magicmod",
+  "version": "${version}",
+  "name": "MagicMod",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "LGPL-3.0",
+  "icon": "assets/magicmod/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "org.kosoc.magicmod.client.MagicmodClient"
+    ],
+    "main": [
+      "org.kosoc.magicmod.Magicmod"
+    ]
+  },
+  "mixins": [
+    "magicmod.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
