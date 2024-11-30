@@ -4,6 +4,7 @@
   "package": "org.kosoc.magicmod.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "PlayerMixin"
   ],
   "client": [
   ],

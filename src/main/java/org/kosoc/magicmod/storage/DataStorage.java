@@ -1,7 +1,16 @@
 package org.kosoc.magicmod.storage;
 
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.server.command.ExperienceCommand;
+import net.minecraft.text.Text;
 import org.kosoc.magicmod.interfaces.IPlayerData;
+import org.kosoc.magicmod.items.ModItemRegister;
+
+import java.util.function.Predicate;
 
 public class DataStorage {
     public static void removeMana(IPlayerData player, float amount) {
@@ -51,13 +60,21 @@ public class DataStorage {
             tick += 1;
         } else if (getTotalMana(player) < maxMana && !nbt.getBoolean("isWannabe")) {
             addMana(player, maxMana);
-        }
-        if(getTotalMana(player) < maxMana && !nbt.getBoolean("inManaZone")){
+        }else if(getTotalMana(player) < maxMana && !nbt.getBoolean("inManaZone")){
+            tick = 0;
             addMana(player, maxMana / 1000);
         }else if(getTotalMana(player) < maxMana){
+            tick = 0;
             addMana(player, maxMana / 10);
         }
         nbt.putInt("rechargeTick", tick);
         return tick;
+    }
+    public static void cycle(PlayerEntity player){
+        IPlayerData playerData = (IPlayerData) player;
+        NbtCompound nbt = playerData.getPersistantData();
+        int cycleInt = nbt.getInt("cycleNum");
+        cycleInt += 1;
+        nbt.putInt("cycleNum", cycleInt);
     }
 }

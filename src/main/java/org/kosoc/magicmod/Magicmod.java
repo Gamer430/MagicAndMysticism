@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.PickaxeItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -16,8 +17,10 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.kosoc.magicmod.interfaces.IPlayerData;
+import org.kosoc.magicmod.items.ModItemRegister;
 import org.kosoc.magicmod.storage.DataStorage;
 
+import java.util.Random;
 import java.util.UUID;
 
 public class Magicmod implements ModInitializer {
@@ -26,14 +29,15 @@ public class Magicmod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ModItemRegister.initialize();
         ServerTickEvents.END_SERVER_TICK.register(this::checkNearbyEntities);
         ServerTickEvents.END_SERVER_TICK.register(this::checkNearbyEntities);
         ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin);
     }
 
     private void onPlayerJoin(ServerPlayNetworkHandler serverPlayNetworkHandler, PacketSender packetSender, MinecraftServer server) {
-        ServerPlayerEntity player = serverPlayNetworkHandler.getPlayer();
-        onPlayerJoin(player);
+        PlayerEntity player = serverPlayNetworkHandler.getPlayer();
+        onPlayerJoin2(player);
     }
 
 
@@ -61,15 +65,26 @@ public class Magicmod implements ModInitializer {
 
     }
 
-    private void onPlayerJoin(ServerPlayerEntity player) {
+    private void onPlayerJoin2(PlayerEntity player) {
         // Example action: Send the player a welcome message
         IPlayerData playerData = ((IPlayerData) player);
         NbtCompound nbt = playerData.getPersistantData();
+        int randomValue = getRandomByTens(500,2000);
         if (player.getUuid().equals(TARGET_PLAYER_UUID)) {
-            DataStorage.setMaxMana(playerData, 999999);
+            DataStorage.setMaxMana(playerData, 5000);
             nbt.putBoolean("isWannabe", true);
         } else {
-            DataStorage.setMaxMana(playerData, 100);
+            DataStorage.setMaxMana(playerData, randomValue);
         }
+    }
+
+    public static int getRandomByTens(int min, int max) {
+        Random random = new Random();
+        // Calculate the number of possible values
+        int range = (max - min) / 10 + 1;
+        // Generate a random index
+        int randomIndex = random.nextInt(range);
+        // Map the index to the actual value
+        return min + (randomIndex * 10);
     }
 }
