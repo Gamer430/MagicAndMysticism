@@ -9,6 +9,8 @@ import net.minecraft.server.command.ExperienceCommand;
 import net.minecraft.text.Text;
 import org.kosoc.magicmod.interfaces.IPlayerData;
 import org.kosoc.magicmod.items.ModItemRegister;
+import org.kosoc.magicmod.items.itemJavas.personalStaffItem;
+import org.kosoc.magicmod.items.itemJavas.staffItem;
 
 import java.util.function.Predicate;
 
@@ -75,6 +77,13 @@ public class DataStorage {
         NbtCompound nbt = playerData.getPersistantData();
         int cycleInt = nbt.getInt("cycleNum");
         cycleInt += 1;
+        if(player.getMainHandStack().getItem() instanceof personalStaffItem && cycleInt > 16){
+            cycleInt = 0;
+        }else if (player.getMainHandStack().getItem() instanceof staffItem && cycleInt > 6){
+            cycleInt = 0;
+        }else{
+            cycleInt = 0;
+        }
         nbt.putInt("cycleNum", cycleInt);
     }
 }
