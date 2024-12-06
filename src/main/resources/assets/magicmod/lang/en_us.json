@@ -1,4 +1,6 @@
 {
-  "item.magicmod.true_magic_staff": "Wannabe's Staff",
-  "item.magicmod.magic_staff": "Wizard's Staff"
+  "item.magicmod.true_magic_staff": "True Mage's Staff",
+  "item.magicmod.magic_staff": "Wizard's Staff",
+  "item.magicmod.staff_base": "Magic Staff Base",
+  "item.magicmod.crystal": "Mystic Crystal"
 }

@@ -1,7 +1,7 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"0": "block/crystal_texture",
+		"0": "magicmod:item/crystal_texture",
 		"particle": "magicmod:item/crystal_texture"
 	},
 	"elements": [
