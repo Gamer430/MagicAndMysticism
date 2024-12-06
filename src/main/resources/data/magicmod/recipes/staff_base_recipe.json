@@ -1,0 +1,23 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "#i#",
+        "I#I",
+        "#i#"
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:oak_log"
+        },
+        "i": {
+            "item": "minecraft:iron_ingot"
+        },
+        "I": {
+            "item": "minecraft:iron_nugget"
+        }
+    },
+    "result": {
+        "item": "magicmod:staff_base",
+        "count": 1
+    }
+}

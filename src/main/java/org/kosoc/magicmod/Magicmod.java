@@ -16,6 +16,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.kosoc.magicmod.entities.ModEntityRegsitry;
 import org.kosoc.magicmod.interfaces.IPlayerData;
 import org.kosoc.magicmod.items.ModItemRegister;
 import org.kosoc.magicmod.storage.DataStorage;
@@ -30,6 +31,7 @@ public class Magicmod implements ModInitializer {
     @Override
     public void onInitialize() {
         ModItemRegister.initialize();
+        ModEntityRegsitry.registerEntities();
         ServerTickEvents.END_SERVER_TICK.register(this::checkNearbyEntities);
         ServerTickEvents.END_SERVER_TICK.register(this::checkNearbyEntities);
         ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin);
@@ -69,13 +71,14 @@ public class Magicmod implements ModInitializer {
         // Example action: Send the player a welcome message
         IPlayerData playerData = ((IPlayerData) player);
         NbtCompound nbt = playerData.getPersistantData();
+        float maxMana = nbt.getFloat("maxMana");
         int randomValue = getRandomByTens(500,2000);
-        if (player.getUuid().equals(TARGET_PLAYER_UUID)) {
+        if(maxMana == 0){
+            DataStorage.setMaxMana(playerData, randomValue);
+        } else  if (player.getUuid().equals(TARGET_PLAYER_UUID)) {
             DataStorage.setMaxMana(playerData, 5000);
             nbt.putBoolean("isWannabe", true);
-        } else {
-            DataStorage.setMaxMana(playerData, randomValue);
-        }
+        } else return;
     }
 
     public static int getRandomByTens(int min, int max) {

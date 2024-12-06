@@ -13,6 +13,7 @@ import org.kosoc.magicmod.items.itemJavas.personalStaffItem;
 import org.kosoc.magicmod.items.itemJavas.staffItem;
 
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 
 public class DataStorage {
     public static void removeMana(IPlayerData player, float amount) {
@@ -60,7 +61,7 @@ public class DataStorage {
         float maxMana = nbt.getFloat("maxMana");
         if(tick < 20 && !nbt.getBoolean("isWannabe")){
             tick += 1;
-        } else if (getTotalMana(player) < maxMana && !nbt.getBoolean("isWannabe")) {
+        } else if (getTotalMana(player) < maxMana && nbt.getBoolean("isWannabe")) {
             addMana(player, maxMana);
         }else if(getTotalMana(player) < maxMana && !nbt.getBoolean("inManaZone")){
             tick = 0;
@@ -84,6 +85,11 @@ public class DataStorage {
         }else{
             cycleInt = 0;
         }
+        System.out.println(cycleInt);
         nbt.putInt("cycleNum", cycleInt);
+    }
+
+    public static int getSpellNum(IPlayerData playerData){
+        return playerData.getPersistantData().getInt("cycleNum");
     }
 }

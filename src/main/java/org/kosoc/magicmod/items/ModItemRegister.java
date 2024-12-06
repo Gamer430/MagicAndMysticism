@@ -8,6 +8,8 @@ import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.Identifier;
 import org.kosoc.magicmod.items.ItemMaterials.LesserMaterial;
 import org.kosoc.magicmod.items.ItemMaterials.StaffMaterial;
+import org.kosoc.magicmod.items.itemJavas.CrystalItem;
+import org.kosoc.magicmod.items.itemJavas.StaffBaseItem;
 import org.kosoc.magicmod.items.itemJavas.personalStaffItem;
 import org.kosoc.magicmod.items.itemJavas.staffItem;
 
@@ -15,9 +17,13 @@ public class ModItemRegister {
 
     public static final Item CustomStaff = new personalStaffItem(StaffMaterial.INSTANCE, 0, -3F, BlockTags.PICKAXE_MINEABLE, new FabricItemSettings());
     public static final Item NormalStaff = new staffItem(LesserMaterial.INSTANCE, 0, -3F, BlockTags.PICKAXE_MINEABLE, new FabricItemSettings());
+    public static final Item Crystal = new CrystalItem(new Item.Settings());
+    public static final Item StaffBase = new StaffBaseItem(new Item.Settings());
     public static void initialize() {
         Registry.register(Registries.ITEM, new Identifier("magicmod", "true_magic_staff"), CustomStaff);
         Registry.register(Registries.ITEM, new Identifier("magicmod", "magic_staff"), NormalStaff);
+        Registry.register(Registries.ITEM, new Identifier("magicmod", "crystal"), Crystal);
+        Registry.register(Registries.ITEM, new Identifier("magicmod", "staff_base"), StaffBase);
     }
 
     public static Item register(Item item, String id) {
