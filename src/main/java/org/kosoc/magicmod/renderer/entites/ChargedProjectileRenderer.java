@@ -31,7 +31,7 @@ public class ChargedProjectileRenderer extends EntityRenderer<ChargedProjectileE
         var world = entity.getWorld();
 
         // Scale data (adjust based on your needs)
-        float scale = 0.5f + (float) world.random.nextGaussian() * 0.1f;
+        float scale = 0.5f + (float) world.random.nextGaussian() * 0.6f;
 
         // Particle logic
         WorldParticleBuilder.create(InstanceRenders.ARCANE)

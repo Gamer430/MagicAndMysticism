@@ -77,13 +77,13 @@ public class DataStorage {
         IPlayerData playerData = (IPlayerData) player;
         NbtCompound nbt = playerData.getPersistantData();
         int cycleInt = nbt.getInt("cycleNum");
-        cycleInt += 1;
-        if(player.getMainHandStack().getItem() instanceof personalStaffItem && cycleInt > 16){
+
+        if(player.getMainHandStack().getItem() instanceof personalStaffItem && cycleInt >= 16){
             cycleInt = 0;
-        }else if (player.getMainHandStack().getItem() instanceof staffItem && cycleInt > 6){
+        }else if (player.getMainHandStack().getItem() instanceof staffItem && cycleInt >= 6){
             cycleInt = 0;
         }else{
-            cycleInt = 0;
+            cycleInt += 1;
         }
         System.out.println(cycleInt);
         nbt.putInt("cycleNum", cycleInt);

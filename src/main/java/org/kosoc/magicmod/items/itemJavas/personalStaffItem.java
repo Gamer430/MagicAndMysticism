@@ -2,6 +2,9 @@ package org.kosoc.magicmod.items.itemJavas;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import io.github.ladysnake.pal.AbilitySource;
+import io.github.ladysnake.pal.Pal;
+import io.github.ladysnake.pal.VanillaAbilities;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.hud.InGameHud;
@@ -24,13 +27,16 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.UseAction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.kosoc.magicmod.entities.ChargedProjectileEntity;
 import org.kosoc.magicmod.entities.ModEntityRegsitry;
@@ -44,6 +50,7 @@ public class personalStaffItem extends ToolItem implements Vanishable {
     protected final float miningSpeed;
     private final float attackDamage;
     private final Multimap<EntityAttribute, EntityAttributeModifier> attributeModifiers;
+    private final AbilitySource FLIGHT = Pal.getAbilitySource("magicmod", "flight");
 
 
     public personalStaffItem(ToolMaterial toolMaterial, int attackDamage, float attackSpeed, TagKey<Block> effectiveBlocks, Item.Settings settings) {
@@ -57,6 +64,15 @@ public class personalStaffItem extends ToolItem implements Vanishable {
         this.attributeModifiers = builder.build();
     }
 
+    public UseAction getUseAction(ItemStack stack) {
+        return UseAction.BOW;
+    }
+
+    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        ItemStack itemStack = user.getStackInHand(hand);
+        user.setCurrentHand(hand);
+        return TypedActionResult.consume(itemStack);
+    }
 
     @Override
     public void usageTick(World world, LivingEntity user, ItemStack stack, int remainingUseTicks) {
@@ -64,7 +80,6 @@ public class personalStaffItem extends ToolItem implements Vanishable {
         int chargeTicks = this.getMaxUseTime(stack) - remainingUseTicks;
         if (player.hurtTime > 0) { // Player was recently hit
             player.stopUsingItem(); // Cancel charging
-            return;
         }
 
         // Deduct mana per tick
@@ -72,13 +87,16 @@ public class personalStaffItem extends ToolItem implements Vanishable {
             DataStorage.removeMana((IPlayerData) user, 5f);
 
             // Visual feedback while charging
-            if (player.getWorld().isClient && remainingUseTicks % 20 != 0) {
-                player.getWorld().addParticle(ParticleTypes.ENCHANT, player.getX(), player.getEyeY(), player.getZ(), 0, 0, 0);
+            if (remainingUseTicks % 20 != 0) {
+                ServerWorld sworld = (ServerWorld) player.getWorld();
+                double x = player.getPos().getX();
+                double y = player.getPos().getY();
+                double z = player.getPos().getZ();
+                sworld.spawnParticles(ParticleTypes.ENCHANT, x, y, z, 3, 0,0,0,1);
             }
 
-        } else {
-            // Stop using if mana is insufficient
-            user.stopUsingItem();
+        }else if(DataStorage.getTotalMana((IPlayerData) user) <= 0){
+            player.stopUsingItem();
         }
     }
 
@@ -87,17 +105,17 @@ public class personalStaffItem extends ToolItem implements Vanishable {
 
         int chargeTicks = this.getMaxUseTime(stack) - remainingUseTicks;
 
-        if(player.hurtTime <= 0){
+        if(player.hurtTime > 0){
             applyBacklash(player, chargeTicks);
             return;
         }
         // Determine spell logic based on charge
         int selectedSpell = DataStorage.getSpellNum((IPlayerData) user); // Example: read the spell from NBT
         switch (selectedSpell) {
-            case 1:
+            case 0:
                 castArcaneProjectile(world, player, chargeTicks);
                 break;
-            case 2:
+            case 1:
                 enableFlight(player, chargeTicks);
                 break;
             default:
@@ -131,24 +149,26 @@ public class personalStaffItem extends ToolItem implements Vanishable {
     }
 
     private void castArcaneProjectile(World world, PlayerEntity player, int chargeTicks) {
-        int level = Math.min(chargeTicks / 40, 15); // 3 seconds per level, capped at level 5.
+        if(chargeTicks < 20) return;
+        int level = Math.min(chargeTicks / 20, 15); // 2 seconds per level, capped at level 15.
         ChargedProjectileEntity projectile = new ChargedProjectileEntity(
                 ModEntityRegsitry.CHARGED_PROJECTILE, world, player, level
         );
         projectile.setPosition(player.getX(), player.getEyeY() - 0.1, player.getZ());
-        projectile.setVelocityFromLevel(player, level); // Use level to scale speed/damage.
         world.spawnEntity(projectile);
+        projectile.setVelocityFromLevel(player, level);
         world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0f, 1.0f);
     }
 
     private void enableFlight(PlayerEntity player, int chargeTicks) {
-        IPlayerData playerData = (IPlayerData) player;
-        NbtCompound nbt = playerData.getPersistantData();
-        boolean flightEnabled = nbt.getBoolean("flightEnabled");
-        if(!flightEnabled){
-            if(chargeTicks >= 600){
-                player.getAbilities().allowFlying = true;
-            }else player.getAbilities().allowFlying = false;
+        if(!player.getWorld().isClient){
+            if(chargeTicks >= 1){
+                if(FLIGHT.grants(player, VanillaAbilities.ALLOW_FLYING)){
+                    FLIGHT.revokeFrom(player, VanillaAbilities.ALLOW_FLYING);
+                }else if(chargeTicks > 3){
+                    FLIGHT.grantTo(player, VanillaAbilities.ALLOW_FLYING);
+                }
+            }
         }
     }
 
@@ -156,7 +176,7 @@ public class personalStaffItem extends ToolItem implements Vanishable {
         IPlayerData playerData = (IPlayerData) player;
         NbtCompound nbt = playerData.getPersistantData();
         int spell = nbt.getInt("cycleNum");
-        if(spell == 1){
+        if(spell == 0){
             int level = Math.min(chargeTicks / 40, 15);
             player.damage(new DamageSource((RegistryEntry<DamageType>) DamageTypes.MAGIC), 2*level);
             player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ENTITY_WITHER_HURT, SoundCategory.PLAYERS, 1.0f, 1.0f);

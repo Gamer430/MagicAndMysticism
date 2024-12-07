@@ -30,6 +30,7 @@ public class ChargedProjectileEntity extends ProjectileEntity {
         super.tick();
     }
 
+
     @Override
     protected void onEntityHit(EntityHitResult entityHitResult) {
         if (entityHitResult.getEntity() instanceof LivingEntity target) {
@@ -58,7 +59,8 @@ public class ChargedProjectileEntity extends ProjectileEntity {
 
     public void setVelocityFromLevel(LivingEntity owner, int level) {
         float speed = Math.min(level * 2.0f, 6.0f); // Scale speed with charge level, capped at 6 blocks/s.
-        Vec3d direction = owner.getRotationVec(1.0f).normalize().multiply(speed);
+        Vec3d direction = owner.getRotationVec(1f).normalize().multiply(speed);
         this.setVelocity(direction);
+        this.velocityModified = true;
     }
 }

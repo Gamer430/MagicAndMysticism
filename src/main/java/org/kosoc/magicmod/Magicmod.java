@@ -19,6 +19,7 @@ import net.minecraft.world.World;
 import org.kosoc.magicmod.entities.ModEntityRegsitry;
 import org.kosoc.magicmod.interfaces.IPlayerData;
 import org.kosoc.magicmod.items.ModItemRegister;
+import org.kosoc.magicmod.packets.ModPackets;
 import org.kosoc.magicmod.storage.DataStorage;
 
 import java.util.Random;
@@ -32,6 +33,7 @@ public class Magicmod implements ModInitializer {
     public void onInitialize() {
         ModItemRegister.initialize();
         ModEntityRegsitry.registerEntities();
+        ModPackets.registerC2SPackets();
         ServerTickEvents.END_SERVER_TICK.register(this::checkNearbyEntities);
         ServerTickEvents.END_SERVER_TICK.register(this::checkNearbyEntities);
         ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin);
